@@ -75,6 +75,12 @@ const FAC=[
  {n:10,name:'Candler Park',addr:'1500 McClendon Ave NE, Atlanta, GA 30307',lat:33.764917,lon:-84.336167,pool:true,splash:false},
  {n:11,name:'Mozley Park',addr:'1690 Martin Luther King Jr Dr SW, Atlanta, GA 30314',lat:33.751453,lon:-84.442305,pool:true,splash:false},
  {n:12,name:'Pittman Park',addr:'950 Garibaldi St SW, Atlanta, GA 30310',lat:33.729878,lon:-84.399143,pool:true,splash:false,note:'Closed for renovations'},
+ // Splash-pad-only facilities (no pool)
+ {n:13,name:'Historic Fourth Ward Park',addr:'680 Dallas St NE, Atlanta, GA 30308',lat:33.768584,lon:-84.365775,pool:false,splash:true},
+ {n:14,name:'Perkerson Park',addr:'770 Deckner Ave SW, Atlanta, GA 30310',lat:33.714269,lon:-84.413712,pool:false,splash:true},
+ {n:15,name:'D.H. Stanton Park',addr:'1050 Haygood Ave SE, Atlanta, GA 30315',lat:33.725230,lon:-84.382117,pool:false,splash:true,note:'Pin = park center'},
+ {n:16,name:'Rodney Cook Sr. Park',addr:'Historic Vine City, Atlanta, GA 30314',lat:33.762078,lon:-84.407646,pool:false,splash:true,note:'Pin = park center'},
+ {n:17,name:'Center Hill Park',addr:'Center St NW, Atlanta, GA 30318',lat:33.778358,lon:-84.459701,pool:false,splash:true,note:'Pin = park center'},
 ];
 const map=L.map('map',{scrollWheelZoom:true});
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
