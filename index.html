@@ -112,8 +112,9 @@ poolBtn.onclick=function(){ poolOn=!poolOn; if(poolOn){poolLayer.addTo(map);this
 splashBtn.onclick=function(){ splashOn=!splashOn; if(splashOn){splashLayer.addTo(map);this.classList.add('on');}else{map.removeLayer(splashLayer);this.classList.remove('on');} fitActive(); };
 // legend
 const splashCount=FAC.filter(f=>f.splash).length;
+const poolCount=FAC.filter(f=>f.pool).length;
 document.getElementById('legend').innerHTML=
- `<div class="grp">City of Atlanta <span class="c">· ${FAC.length} pools · ${splashCount} splash pads</span></div>`+
+ `<div class="grp">City of Atlanta <span class="c">· ${poolCount} pools · ${splashCount} splash pads</span></div>`+
  FAC.map(f=>`<div class="row" data-n="${f.n}">
    <div class="num">${f.n}</div>
    <div class="info"><div class="nm">${f.name}</div><div class="ad">${f.addr}</div>
