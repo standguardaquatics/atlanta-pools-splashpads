@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>StandGuard Aquatics — City of Atlanta Pools & Splash Pads</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+ :root{--blue:#0000FF;--navy:#0A1657;--orange:#E8590C;--line:#e6e9f0;--muted:#64748b}
+ *{box-sizing:border-box}
+ html,body{margin:0;height:100%;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;color:#12294d;background:#eef1f7}
+ .app{display:flex;flex-direction:column;height:100%}
+ .top{display:flex;align-items:center;gap:12px;background:var(--blue);color:#fff;padding:12px 18px;flex-wrap:wrap}
+ .top .badge{width:34px;height:34px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center}
+ .top .badge svg{width:26px;height:26px}
+ .top h1{font-size:17px;margin:0;font-weight:800;letter-spacing:.3px}
+ .top .sub{font-size:12px;opacity:.92;margin-top:1px}
+ .btns{display:flex;gap:10px;margin-left:auto;flex-wrap:wrap}
+ .tbtn{background:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.18)}
+ .tbtn.pool{color:var(--blue)} .tbtn.pool.on{background:var(--blue);color:#fff}
+ .tbtn.splash{color:var(--orange)} .tbtn.splash.on{background:var(--orange);color:#fff}
+ .body{flex:1;display:flex;min-height:0}
+ .side{width:340px;max-width:44%;background:#fff;border-right:1px solid var(--line);overflow-y:auto}
+ .grp{font-size:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:800;color:#fff;background:var(--navy);padding:9px 16px;position:sticky;top:0}
+ .grp .c{opacity:.85;font-weight:700}
+ .row{display:flex;gap:12px;padding:11px 16px;border-top:1px solid var(--line);cursor:pointer;transition:background .12s}
+ .row:hover{background:#f3f6ff}
+ .num{flex:none;width:29px;height:29px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+ .info .nm{font-weight:800;font-size:14.5px}
+ .info .ad{font-size:12px;color:var(--muted);margin-top:2px}
+ .chips{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
+ .chip{font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px}
+ .chip.pool{background:#e6e6ff;color:var(--blue)} .chip.splash{background:#fde6d8;color:var(--orange)}
+ .info .rn{font-size:11.5px;color:var(--orange);font-weight:700;margin-top:4px}
+ #map{flex:1;min-height:0}
+ .marker-pin{width:28px;height:28px;border-radius:50% 50% 50% 0;background:var(--navy);border:2px solid #fff;position:absolute;left:0;top:0;transform:rotate(-45deg);box-shadow:0 3px 7px rgba(0,0,0,.35)}
+ .marker-num{position:absolute;left:0;top:3px;width:28px;text-align:center;color:#fff;font-weight:800;font-size:13px}
+ .leaflet-popup-content{font-family:inherit}
+ .pop b{color:var(--navy)} .pop .pa{color:var(--muted);font-size:12px}
+ .foot{font-size:11px;color:var(--muted);padding:10px 16px 20px}
+ @media(max-width:820px){.body{flex-direction:column}.side{width:100%;max-width:none;max-height:44%;border-right:0;border-bottom:1px solid var(--line)}.btns{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="top">
+  <span class="badge"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="23" fill="#0000FF"/><g stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M16 12v22"/><path d="M32 12v22"/><path d="M15 20h18"/><path d="M16 34l-4 4"/><path d="M32 34l4 4"/><path d="M20 12h8v6h-8z" fill="#fff" stroke="none"/></g></svg></span>
+  <div><h1>Pools &amp; Splash Pads</h1><div class="sub">StandGuard Aquatics — City of Atlanta · 5-mile radius by type</div></div>
+  <div class="btns">
+   <button id="poolBtn" class="tbtn pool">◎ Pool radius</button>
+   <button id="splashBtn" class="tbtn splash">◎ Splash pad radius</button>
+  </div>
+ </div>
+ <div class="body">
+  <div class="side">
+   <div id="legend"></div>
+   <div class="foot">Press <b style="color:#0000FF">Pool radius</b> to show a 5-mile circle around every pool, and <b style="color:#E8590C">Splash pad radius</b> for every splash pad. You can show both at once. Facilities with both get one circle of each color. Adams Park pin is the park center.</div>
+  </div>
+  <div id="map"></div>
+ </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// pool: every facility (all are on the City of Atlanta pool list). splash: has a splash pad.
+const FAC=[
+ {n:1,name:'Grant Park',addr:'625 Park Ave SE, Atlanta, GA 30312',lat:33.738196,lon:-84.369901,pool:true,splash:false},
+ {n:2,name:'John A. White Park',addr:'1101 Cascade Cir SW, Atlanta, GA 30311',lat:33.724315,lon:-84.450240,pool:true,splash:false},
+ {n:3,name:'South Bend Park',addr:'2000 Lakewood Ave SE, Atlanta, GA 30315',lat:33.701791,lon:-84.385534,pool:true,splash:false},
+ {n:4,name:'Maddox Park',addr:'1142 Donald Lee Hollowell Pkwy NW, Atlanta, GA 30318',lat:33.772453,lon:-84.425589,pool:true,splash:true},
+ {n:5,name:'Adams Park',addr:'1581 Lagoon Ln SW, Atlanta, GA 30311',lat:33.710238,lon:-84.462056,pool:true,splash:false,note:'Pin = park center'},
+ {n:6,name:'Anderson Park',addr:'100 Anderson Ave NW, Atlanta, GA 30314',lat:33.758052,lon:-84.450249,pool:true,splash:false},
+ {n:7,name:'Rev. James Orange Park',addr:'1305 Oakland Ln SW, Atlanta, GA 30310',lat:33.719599,lon:-84.427720,pool:true,splash:true},
+ {n:8,name:'Rosa L. Burney Park',addr:'477 Windsor St SW, Atlanta, GA 30312',lat:33.741928,lon:-84.398314,pool:true,splash:false},
+ {n:9,name:'Thomasville',addr:'1835 Henry Thomas Dr SE, Atlanta, GA 30315',lat:33.704422,lon:-84.355823,pool:true,splash:false},
+ {n:10,name:'Candler Park',addr:'1500 McClendon Ave NE, Atlanta, GA 30307',lat:33.764917,lon:-84.336167,pool:true,splash:false},
+ {n:11,name:'Mozley Park',addr:'1690 Martin Luther King Jr Dr SW, Atlanta, GA 30314',lat:33.751453,lon:-84.442305,pool:true,splash:false},
+ {n:12,name:'Pittman Park',addr:'950 Garibaldi St SW, Atlanta, GA 30310',lat:33.729878,lon:-84.399143,pool:true,splash:false,note:'Closed for renovations'},
+];
+const map=L.map('map',{scrollWheelZoom:true});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+const icon=f=>L.divIcon({className:'',html:`<div class="marker-pin"></div><div class="marker-num">${f.n}</div>`,iconSize:[28,40],iconAnchor:[14,40],popupAnchor:[0,-38]});
+const markers={};
+FAC.forEach(f=>{
+ const m=L.marker([f.lat,f.lon],{icon:icon(f)}).addTo(map);
+ const tags=[f.pool?'<span style="color:#0000FF;font-weight:700">Pool</span>':'',f.splash?'<span style="color:#E8590C;font-weight:700">Splash pad</span>':''].filter(Boolean).join(' &middot; ');
+ m.bindPopup(`<div class="pop"><b>${f.n}. ${f.name}</b><div class="pa">${f.addr}</div><div style="margin-top:4px;font-size:12px">${tags}</div>${f.note?`<div style="margin-top:3px;font-size:11.5px;color:#E8590C;font-weight:700">${f.note}</div>`:''}</div>`);
+ markers[f.n]=m;
+});
+map.fitBounds(FAC.map(f=>[f.lat,f.lon]),{padding:[45,45]});
+// 5-mile radius layers by type
+const MILE=1609.344;
+const poolLayer=L.layerGroup(), splashLayer=L.layerGroup();
+FAC.forEach(f=>{
+ if(f.pool) L.circle([f.lat,f.lon],{radius:5*MILE,color:'#0000FF',weight:1.5,opacity:.5,fillColor:'#0000FF',fillOpacity:.05}).addTo(poolLayer);
+ if(f.splash) L.circle([f.lat,f.lon],{radius:5*MILE,color:'#E8590C',weight:1.5,opacity:.6,fillColor:'#E8590C',fillOpacity:.07}).addTo(splashLayer);
+});
+let poolOn=false, splashOn=false;
+const poolBtn=document.getElementById('poolBtn'), splashBtn=document.getElementById('splashBtn');
+function fitActive(){
+ const active=[]; if(poolOn)active.push(poolLayer); if(splashOn)active.push(splashLayer);
+ if(!active.length){ map.fitBounds(FAC.map(f=>[f.lat,f.lon]),{padding:[45,45]}); return; }
+ let b=active[0].getBounds(); for(let i=1;i<active.length;i++) b.extend(active[i].getBounds());
+ map.fitBounds(b,{padding:[30,30]});
+}
+poolBtn.onclick=function(){ poolOn=!poolOn; if(poolOn){poolLayer.addTo(map);this.classList.add('on');}else{map.removeLayer(poolLayer);this.classList.remove('on');} fitActive(); };
+splashBtn.onclick=function(){ splashOn=!splashOn; if(splashOn){splashLayer.addTo(map);this.classList.add('on');}else{map.removeLayer(splashLayer);this.classList.remove('on');} fitActive(); };
+// legend
+const splashCount=FAC.filter(f=>f.splash).length;
+document.getElementById('legend').innerHTML=
+ `<div class="grp">City of Atlanta <span class="c">· ${FAC.length} pools · ${splashCount} splash pads</span></div>`+
+ FAC.map(f=>`<div class="row" data-n="${f.n}">
+   <div class="num">${f.n}</div>
+   <div class="info"><div class="nm">${f.name}</div><div class="ad">${f.addr}</div>
+    <div class="chips">${f.pool?'<span class="chip pool">Pool</span>':''}${f.splash?'<span class="chip splash">Splash pad</span>':''}</div>
+    ${f.note?`<div class="rn">${f.note}</div>`:''}</div></div>`).join('');
+document.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const f=FAC.find(x=>x.n===+r.dataset.n);map.flyTo([f.lat,f.lon],14,{duration:.6});markers[f.n].openPopup();});
+</script>
+</body>
+</html>
