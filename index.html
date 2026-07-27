@@ -104,8 +104,8 @@ map.fitBounds(cityBounds,{padding:[15,15]});
 const MILE=1609.344;
 const poolLayer=L.layerGroup(), splashLayer=L.layerGroup();
 FAC.forEach(f=>{
- if(f.pool) L.circle([f.lat,f.lon],{radius:2.5*MILE,color:'#0000FF',weight:1.5,opacity:.5,fillColor:'#0000FF',fillOpacity:.05}).addTo(poolLayer);
- if(f.splash) L.circle([f.lat,f.lon],{radius:2.5*MILE,color:'#E8590C',weight:1.5,opacity:.6,fillColor:'#E8590C',fillOpacity:.07}).addTo(splashLayer);
+ if(f.pool) L.circle([f.lat,f.lon],{radius:2.5*MILE,color:'#0000FF',weight:3,opacity:.95,fillColor:'#0000FF',fillOpacity:.14}).addTo(poolLayer);
+ if(f.splash) L.circle([f.lat,f.lon],{radius:2.5*MILE,color:'#E8590C',weight:3,opacity:.95,fillColor:'#E8590C',fillOpacity:.16}).addTo(splashLayer);
 });
 let poolOn=false, splashOn=false;
 const poolBtn=document.getElementById('poolBtn'), splashBtn=document.getElementById('splashBtn');
